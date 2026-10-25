@@ -236,7 +236,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onLoginSuccess }) => {
             {/* Quick Demo Credentials */}
             <div className="pt-3 border-t border-slate-100 space-y-2">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                Quick 1-Click Test Accounts
+                Quick 1-Click Login Accounts
               </span>
               <div className="space-y-1.5">
                 <button
@@ -245,10 +245,11 @@ export const HomePage: React.FC<HomePageProps> = ({ onLoginSuccess }) => {
                   className="w-full text-left p-2.5 rounded-xl bg-amber-50/80 hover:bg-amber-100/70 border border-amber-200/60 transition-colors flex items-center justify-between"
                 >
                   <div>
-                    <span className="text-xs font-bold text-amber-950 block">👑 Administrator (Full Control)</span>
+                    <span className="text-xs font-black text-amber-950 block">👑 Tax Consultant (Only Admin)</span>
                     <span className="text-[10px] text-amber-700 font-mono">kotulegroup@gmail.com / admin123</span>
+                    <p className="text-[9px] text-amber-600 mt-0.5">Sees Client 1 & Client 2 List + Monthwise Analytics</p>
                   </div>
-                  <span className="text-[9px] bg-amber-200 text-amber-900 font-bold px-1.5 py-0.5 rounded">Admin</span>
+                  <span className="text-[9px] bg-amber-200 text-amber-900 font-bold px-1.5 py-0.5 rounded">Consultant</span>
                 </button>
 
                 <button
@@ -259,8 +260,9 @@ export const HomePage: React.FC<HomePageProps> = ({ onLoginSuccess }) => {
                   <div>
                     <span className="text-xs font-bold text-slate-900 block">👤 Client 1: Apex Electronics (MH)</span>
                     <span className="text-[10px] text-slate-500 font-mono">9820012345 / client123</span>
+                    <p className="text-[9px] text-slate-400 mt-0.5">Own sellers & purchasers (Private to Client 1)</p>
                   </div>
-                  <span className="text-[9px] bg-slate-200 text-slate-700 font-bold px-1.5 py-0.5 rounded">Client</span>
+                  <span className="text-[9px] bg-slate-200 text-slate-700 font-bold px-1.5 py-0.5 rounded">Client 1</span>
                 </button>
 
                 <button
@@ -269,10 +271,11 @@ export const HomePage: React.FC<HomePageProps> = ({ onLoginSuccess }) => {
                   className="w-full text-left p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-colors flex items-center justify-between"
                 >
                   <div>
-                    <span className="text-xs font-bold text-slate-900 block">👤 Client 2: Gujarat Solvents (GJ)</span>
+                    <span className="text-xs font-bold text-slate-900 block">👤 Client 2: Gujarat Petro Chemicals (GJ)</span>
                     <span className="text-[10px] text-slate-500 font-mono">9890098765 / client123</span>
+                    <p className="text-[9px] text-slate-400 mt-0.5">Own chemical sellers & purchasers (Private to Client 2)</p>
                   </div>
-                  <span className="text-[9px] bg-slate-200 text-slate-700 font-bold px-1.5 py-0.5 rounded">Client</span>
+                  <span className="text-[9px] bg-slate-200 text-slate-700 font-bold px-1.5 py-0.5 rounded">Client 2</span>
                 </button>
               </div>
             </div>

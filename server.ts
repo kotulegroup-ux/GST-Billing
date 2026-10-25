@@ -180,13 +180,7 @@ function seedAccountsForClient(clientId: number, clientName: string, state: stri
     { name: "IGST Input", type: "ASSET", group: "Duties & Taxes", bal: 0 },
     { name: "CGST Output", type: "LIABILITY", group: "Duties & Taxes", bal: 0 },
     { name: "SGST Output", type: "LIABILITY", group: "Duties & Taxes", bal: 0 },
-    { name: "IGST Output", type: "LIABILITY", group: "Duties & Taxes", bal: 0 },
-    // Sample Debtors (Customers)
-    { name: "M/s Royal Tech Solutions", type: "ASSET", group: "Sundry Debtors", bal: 45000, gstin: `${stateCode}AAACR9988D1Z2`, state: state, stateCode: stateCode },
-    { name: "Delta Infotech (Gujarat)", type: "ASSET", group: "Sundry Debtors", bal: 32000, gstin: `24AACCD4455E1Z7`, state: "Gujarat", stateCode: "24" },
-    // Sample Creditors (Suppliers)
-    { name: "National Chipsets & Components", type: "LIABILITY", group: "Sundry Creditors", bal: -68000, gstin: `${stateCode}AABCN1122F1Z9`, state: state, stateCode: stateCode },
-    { name: "Karnataka Electricals Ltd", type: "LIABILITY", group: "Sundry Creditors", bal: -24000, gstin: `29AABCK3344G1Z1`, state: "Karnataka", stateCode: "29" }
+    { name: "IGST Output", type: "LIABILITY", group: "Duties & Taxes", bal: 0 }
   ];
 
   for (const a of accounts) {
@@ -1734,9 +1728,55 @@ async function startServer() {
 
   app.delete("/api/accounts/:id", (req, res) => {
     const ctx = getContext(req);
-    db.prepare("DELETE FROM accounts WHERE id = ? AND client_id = ?").run(req.params.id, ctx.clientId);
-    triggerAdminDriveAutoSync();
-    res.json({ success: true });
+    const { id } = req.params;
+    const force = req.query.force === 'true';
+
+    try {
+      const account = db.prepare("SELECT * FROM accounts WHERE id = ? AND client_id = ?").get(id, ctx.clientId) as any;
+      if (!account) {
+        return res.status(404).json({ error: "Party or account not found" });
+      }
+
+      // Check for linked invoices
+      const linkedInvoices = db.prepare("SELECT COUNT(*) as count FROM invoices WHERE customer_id = ? AND client_id = ?").get(id, ctx.clientId) as any;
+      
+      // Check for linked transactions (party, debit, credit)
+      const linkedTxns = db.prepare(`
+        SELECT COUNT(*) as count FROM transactions 
+        WHERE (party_id = ? OR debit_account_id = ? OR credit_account_id = ?) AND client_id = ?
+      `).get(id, id, id, ctx.clientId) as any;
+
+      const invoicesCount = linkedInvoices?.count || 0;
+      const transactionsCount = linkedTxns?.count || 0;
+
+      if ((invoicesCount > 0 || transactionsCount > 0) && !force) {
+        return res.status(400).json({
+          hasLinkedRecords: true,
+          invoicesCount,
+          transactionsCount,
+          error: `Cannot delete "${account.name}" because it has ${invoicesCount} tax invoice(s) and ${transactionsCount} voucher entry/entries linked to it.`
+        });
+      }
+
+      // Delete in transaction
+      const deleteTransaction = db.transaction(() => {
+        if (force) {
+          db.prepare("DELETE FROM invoices WHERE customer_id = ? AND client_id = ?").run(id, ctx.clientId);
+          db.prepare(`
+            DELETE FROM transactions 
+            WHERE (party_id = ? OR debit_account_id = ? OR credit_account_id = ?) AND client_id = ?
+          `).run(id, id, id, ctx.clientId);
+        }
+        db.prepare("DELETE FROM accounts WHERE id = ? AND client_id = ?").run(id, ctx.clientId);
+      });
+
+      deleteTransaction();
+      triggerAdminDriveAutoSync();
+      res.json({ success: true, message: `Party "${account.name}" deleted successfully.` });
+    } catch (err: any) {
+      console.error("Account delete error:", err);
+      res.status(500).json({ error: err.message || "Failed to delete party" });
+    }
   });
 
   // --- Scoped Inventory API ---

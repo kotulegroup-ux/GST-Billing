@@ -128,16 +128,37 @@ export const PartiesManagement: React.FC<PartiesManagementProps> = ({
   };
 
   const handleDeleteParty = async (party: Account) => {
-    if (!confirm(`Are you sure you want to delete party "${party.name}"?`)) return;
+    if (!window.confirm(`Are you sure you want to delete party "${party.name}"?`)) return;
+
     try {
-      const res = await fetch(`/api/accounts/${party.id}`, { method: 'DELETE' });
-      if (res.ok) {
-        onRefresh();
-      } else {
-        alert('Failed to delete party');
+      let res = await fetch(`/api/accounts/${party.id}`, { method: 'DELETE' });
+      let data = await res.json();
+
+      if (!res.ok) {
+        if (data.hasLinkedRecords) {
+          const cascadeConfirm = window.confirm(
+            `Party "${party.name}" has ${data.invoicesCount} tax invoice(s) and ${data.transactionsCount} voucher entry/entries linked to it.\n\n` +
+            `Deleting this party will also delete its linked vouchers and invoices.\n\n` +
+            `Do you want to permanently delete "${party.name}" and all linked entries?`
+          );
+          if (!cascadeConfirm) return;
+
+          res = await fetch(`/api/accounts/${party.id}?force=true`, { method: 'DELETE' });
+          data = await res.json();
+          if (!res.ok) {
+            alert(data.error || 'Failed to delete party');
+            return;
+          }
+        } else {
+          alert(data.error || 'Failed to delete party');
+          return;
+        }
       }
-    } catch (e) {
-      alert('Delete error');
+
+      onRefresh();
+    } catch (e: any) {
+      console.error(e);
+      alert(e.message || 'Error occurred while deleting party');
     }
   };
 

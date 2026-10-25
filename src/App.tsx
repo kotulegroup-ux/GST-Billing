@@ -153,9 +153,31 @@ const Masters = ({
   };
 
   const deleteLedger = async (id: number) => {
-    if (confirm('Delete this ledger?')) {
-      await fetch(`/api/accounts/${id}`, { method: 'DELETE' });
+    if (!confirm('Are you sure you want to delete this ledger account?')) return;
+    try {
+      let res = await fetch(`/api/accounts/${id}`, { method: 'DELETE' });
+      let data = await res.json();
+      if (!res.ok) {
+        if (data.hasLinkedRecords) {
+          const confirmCascade = confirm(`${data.error}\n\nDo you want to delete this account along with all its linked vouchers and invoices?`);
+          if (confirmCascade) {
+            res = await fetch(`/api/accounts/${id}?force=true`, { method: 'DELETE' });
+            data = await res.json();
+            if (!res.ok) {
+              alert(data.error || 'Failed to delete account');
+              return;
+            }
+          } else {
+            return;
+          }
+        } else {
+          alert(data.error || 'Failed to delete account');
+          return;
+        }
+      }
       onRefresh();
+    } catch (e: any) {
+      alert(e.message || 'Delete error');
     }
   };
 
@@ -1575,10 +1597,10 @@ export default function App() {
             <button
               onClick={() => setActiveTab('admin')}
               className="flex items-center gap-1.5 font-bold text-amber-400 hover:text-amber-300 transition-colors"
-              title="Go to Clients Dashboard"
+              title="Go to Tax Consultant Clients Dashboard"
             >
               <ShieldCheck size={16} /> 
-              <span>👑 Admin Dashboard</span>
+              <span>👑 Tax Consultant Portal</span>
             </button>
           ) : (
             <div className="flex items-center gap-1.5 font-medium text-slate-300">

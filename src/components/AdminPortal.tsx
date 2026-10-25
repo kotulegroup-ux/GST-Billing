@@ -286,12 +286,12 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <span className="p-1.5 bg-amber-100 text-amber-800 rounded-lg text-xs font-black">👑 Administrator</span>
+            <span className="p-1.5 bg-amber-100 text-amber-800 rounded-lg text-xs font-black">👑 Tax Consultant</span>
             <span className="text-xs text-slate-400 font-bold">•</span>
-            <span className="text-xs text-slate-500 font-semibold">{regularClients.length} Registered Clients</span>
+            <span className="text-xs text-slate-500 font-semibold">{regularClients.length} Registered Clients (Client 1 & Client 2)</span>
           </div>
-          <h2 className="text-2xl font-black text-slate-900 tracking-tight mt-1">Clients Dashboard</h2>
-          <p className="text-xs text-slate-500">Monitor client portfolios, audit & correct voucher entries, and file GST returns</p>
+          <h2 className="text-2xl font-black text-slate-900 tracking-tight mt-1">Tax Consultant Dashboard</h2>
+          <p className="text-xs text-slate-500">Monitor Client 1 & Client 2 portfolios, monthwise sale/purchase data, audit books & GST returns</p>
         </div>
         <div className="flex items-center gap-2">
           <button
