@@ -1,0 +1,5 @@
+{
+  "name": "Accounting App",
+  "description": "A comprehensive mobile accounting application for tracking sales, purchases, bank entries, and generating financial reports and invoices.",
+  "requestFramePermissions": ["camera"]
+}
